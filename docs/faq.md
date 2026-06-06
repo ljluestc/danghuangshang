@@ -162,3 +162,56 @@ powershell -ExecutionPolicy Bypass -File (New-Object Net.WebClient).DownloadStri
 1. 是否用了 `<@用户ID>` 格式（不是纯文本 `@名字`）
 2. `allowBots: "mentions"` 是否已配置（Bot 间互相触发需要，且防止无限循环）
 3. Bot 的 Message Content Intent 是否已开启
+
+### Q: Telegram 多 Bot 场景里，为什么会出现「Bot A @Bot B 不触发」或「@一个 Bot 结果所有 Bot 都回复」？
+
+这是 Telegram 多 Bot 最常见的两个“看起来矛盾”的现象，本质上是两种配置模式的结果：
+
+1. `requireMention: true` 时  
+   - 只有**明确命中该 Bot 的 mention**才会触发  
+   - 如果你发的是展示名（例如 `@司礼监`）而不是 Telegram 用户名（例如 `@silijian_bot`），通常不会命中  
+2. `requireMention: false` 时  
+   - 该群内消息默认允许触发  
+   - 多 Bot 在同一群且都允许触发时，@其中一个 Bot 也可能让其他 Bot 一并响应
+
+**推荐做法（多 Bot 同群最稳）：**
+
+- 保持 `channels.telegram.groups.<GROUP_ID>.requireMention: true`
+- 使用**真实 Telegram 用户名**做 @（`@xxx_bot`），不要用中文展示名
+- 在每个 agent 的 `groupChat.mentionPatterns` 写入自己的 Telegram 用户名，避免仅靠默认模式匹配
+- 若 Bot 需要读取群内全部消息，去 BotFather 关闭 Privacy Mode（`/setprivacy`）或将 Bot 设为群管理员
+
+示例（片段）：
+
+```json
+{
+  "channels": {
+    "telegram": {
+      "groupPolicy": "open",
+      "groups": {
+        "-1001234567890": {
+          "requireMention": true
+        }
+      }
+    }
+  },
+  "agents": {
+    "list": [
+      {
+        "id": "silijian",
+        "groupChat": {
+          "mentionPatterns": ["@silijian_bot"]
+        }
+      },
+      {
+        "id": "bingbu",
+        "groupChat": {
+          "mentionPatterns": ["@bingbu_bot"]
+        }
+      }
+    ]
+  }
+}
+```
+
+> 如果你的目标是“平时自动回复，但 @其他 Bot 时本 Bot 忽略”，那是另一种策略需求。请优先保持 `requireMention: true`；否则在多 Bot 同群下很容易出现并发回应。
