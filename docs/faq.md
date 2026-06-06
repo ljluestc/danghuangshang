@@ -13,6 +13,51 @@ ChatGPT 是一个通才，对话结束就失忆。这套系统是多个专家—
 ### Q: 能用其他模型吗？
 能。OpenClaw 支持 Anthropic、OpenAI、Google Gemini 等主流服务商，也可接入兼容 OpenAI API 格式的服务商。在 `openclaw.json` 里改 model 配置就行。不同部门可以用不同模型。
 
+### Q: 可以自己增加大模型平台吗？
+可以。只要你的平台提供 **OpenAI 兼容 API**（或 OpenClaw 已支持的 provider 形态），就可以接入。
+
+最常用做法是：在 `~/.openclaw/openclaw.json` 新增一个 provider，然后把 agent 的 `model.primary` 指向它。
+
+示例：
+
+```json
+{
+  "models": {
+    "providers": {
+      "my-provider": {
+        "baseUrl": "https://your-provider-api-url",
+        "apiKey": "YOUR_API_KEY",
+        "api": "openai",
+        "models": [
+          {
+            "id": "my-fast-model",
+            "name": "快速模型",
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": { "primary": "my-provider/my-fast-model" }
+    }
+  }
+}
+```
+
+接入步骤（3 步）：
+1. 在 `models.providers` 下新增你的平台配置（`baseUrl`、`apiKey`、`api`、`models`）。
+2. 把目标 agent 的 `model.primary` 改成 `provider/model` 格式（如 `my-provider/my-fast-model`）。
+3. 重启 gateway：`openclaw gateway restart`。
+
+排查建议：
+- 报 `config invalid`：先跑 `openclaw doctor --fix`；
+- 模型名找不到：检查 `model.primary` 是否与 `models[].id` 完全一致；
+- 401/403：优先检查 `apiKey`、平台权限、`baseUrl` 是否包含错误路径。
+
 ### Q: 每月 API 费用大概多少？
 看使用强度。轻度使用 $10-15/月，中度 $20-30/月。省钱技巧：重活用强力模型，轻活用快速模型（便宜约 5 倍），简单任务可接入经济模型进一步降本。
 
