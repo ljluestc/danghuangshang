@@ -12,8 +12,8 @@ fi
 # 🏛️ AI 朝廷 Docker 初始化脚本
 # ============================================
 # 用法：
-#   docker compose exec court /init-docker.sh
-#   docker compose run --rm court /init-docker.sh
+#   docker compose exec court init-court
+#   docker compose run --rm court init-court
 # ============================================
 
 RED='\033[0;31m'

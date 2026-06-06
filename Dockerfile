@@ -76,7 +76,10 @@ WORKDIR ${WORKSPACE}
 # 复制初始化脚本
 COPY docker/entrypoint.sh /entrypoint.sh
 COPY docker/init-docker.sh /init-docker.sh
-RUN chmod +x /entrypoint.sh /init-docker.sh
+RUN chmod +x /entrypoint.sh /init-docker.sh && \
+    ln -sf /init-docker.sh /usr/local/bin/init-court && \
+    ln -sf /init-docker.sh /usr/local/bin/init-docker.sh && \
+    ln -sf /init-docker.sh /usr/local/bin/init-docker
 
 # 复制 GUI 构建产物
 COPY --from=gui-builder /build/dist/ /opt/gui/dist/
