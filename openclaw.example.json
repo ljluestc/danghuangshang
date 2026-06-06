@@ -499,6 +499,23 @@
         }
       }
     },
+    "telegram": {
+      "enabled": false,
+      "dmPolicy": "open",
+      "groupPolicy": "open",
+      "accounts": {
+        "silijian": {
+          "name": "司礼监",
+          "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
+          "groupPolicy": "open"
+        }
+      },
+      "groups": {
+        "-1001234567890": {
+          "requireMention": true
+        }
+      }
+    },
     "feishu": {
       "enabled": false,
       "dmPolicy": "open",
