@@ -261,10 +261,10 @@ if mode == "2":
             agent["sandbox"]["scope"] = "agent"
         config["agents"]["list"].append(agent)
 
-# 消息配置（@everyone/@here 触发 + 反应范围）
+# 消息配置（默认不注入全局 mentionPatterns，避免多 Bot 场景误触发）
 config["messages"] = {
     "groupChat": {
-        "mentionPatterns": ["@everyone", "@here"]
+        "mentionPatterns": []
     },
     "ackReactionScope": "group-mentions"
 }
